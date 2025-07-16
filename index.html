@@ -166,11 +166,11 @@
         .modal-content { background-color: var(--bg-secondary); border: 2px solid var(--border-color); margin: 10% auto; padding: 25px; width: 90%; max-width: 600px; }
         .close-button { color: var(--text-secondary); float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
         .close-button:hover { color: var(--text-primary); }
-        #game-over-overlay, #minigame-overlay, #shooter-overlay, #pre-minigame-overlay, #sudoku-overlay { display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); justify-content: center; align-items: center; text-align: center; }
-        #game-over-overlay h1, #minigame-overlay h1, #shooter-overlay h1, #pre-minigame-overlay h1, #sudoku-overlay h1 { font-size: 48px; color: var(--danger-color); }
-        #game-over-overlay p, #minigame-overlay p, #shooter-overlay p, #pre-minigame-overlay p, #sudoku-overlay p { font-size: 24px; color: var(--text-primary); }
-        #pre-minigame-overlay h1 { color: var(--text-primary); }
-        #pre-minigame-overlay button { margin-top: 20px; }
+        #game-over-overlay, #minigame-overlay, #shooter-overlay, #pre-minigame-overlay, #sudoku-overlay, #mission-success-overlay { display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); justify-content: center; align-items: center; text-align: center; }
+        #game-over-overlay h1, #minigame-overlay h1, #shooter-overlay h1, #pre-minigame-overlay h1, #sudoku-overlay h1, #mission-success-overlay h1 { font-size: 48px; color: var(--danger-color); }
+        #game-over-overlay p, #minigame-overlay p, #shooter-overlay p, #pre-minigame-overlay p, #sudoku-overlay p, #mission-success-overlay p { font-size: 24px; color: var(--text-primary); }
+        #pre-minigame-overlay h1, #mission-success-overlay h1 { color: var(--text-primary); }
+        #pre-minigame-overlay button, #mission-success-overlay button { margin-top: 20px; }
         #game-over-buttons button { margin: 0 10px; }
         #minigame-canvas, #shooter-canvas { background: #000; border: 2px solid var(--accent-primary); }
         .equipment-slot { display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 2px solid var(--border-color); margin-bottom: 10px; }
@@ -216,6 +216,14 @@
             <button id="start-minigame-btn">START MISSION</button>
         </div>
     </div>
+    <div id="mission-success-overlay">
+        <div>
+            <h1 id="mission-success-title">MISSION SUCCESSFUL</h1>
+            <p>Rewards obtained:</p>
+            <div id="mission-success-rewards" style="margin: 10px 0;"></div>
+            <button id="mission-success-close-btn">CLOSE</button>
+        </div>
+    </div>
     <div id="minigame-overlay">
         <div>
             <h1>Mine the Asteroid Fields</h1>
@@ -255,7 +263,6 @@
             <button class="nav-button active" data-tab="base">Dashboard</button>
             <button class="nav-button" data-tab="commander">Commander</button>
             <button class="nav-button" data-tab="mercs">Operatives</button>
-            <button class="nav-button" data-tab="recruitment">Recruit</button>
             <button class="nav-button" data-tab="inventory">Inventory</button>
             <button class="nav-button" data-tab="map">Starmap</button>
             <button class="nav-button" data-tab="crafting">Fabricator</button>
@@ -267,8 +274,19 @@
         <main id="main-content" class="page-container">
             <section id="base-section" class="game-section active"><div class="page-header"><h1>Command Dashboard</h1><p>System overview of your orbital platform.</p></div><h2>Fabrication Queue</h2><div class="table-container" id="production-queue-table"></div><h2 style="margin-top: 30px;">Active Missions</h2><div class="table-container" id="active-missions-table"></div></section>
             <section id="commander-section" class="game-section"></section>
-            <section id="mercs-section" class="game-section"><div class="page-header"><h1>Operative Roster</h1><p>Manage your elite crew.</p></div><div class="filter-buttons" id="merc-filter-buttons"><button class="active" data-filter="all">All</button><button data-filter="available">Available</button><button data-filter="mission">On Mission</button></div><div class="table-container" id="merc-list-table"></div></section>
-            <section id="recruitment-section" class="game-section"><div class="page-header"><h1>Recruitment Center</h1><p>Hire new operatives from across the galaxy.</p></div><div class="card"><h2>Hire Operative</h2><p>Find new talent to join your cause. Each operative brings a unique set of skills.</p><button id="recruit-merc-btn">Hire Operative (1500 Credits)</button></div></section>
+            <section id="mercs-section" class="game-section">
+                <div class="page-header">
+                    <h1 id="operative-roster-title">Operative Roster</h1>
+                    <p>Manage your elite crew.</p>
+                </div>
+                <div class="card">
+                    <h2>Recruit New Operative</h2>
+                    <p>Find new talent to join your cause. Each operative brings a unique set of skills.</p>
+                    <button id="recruit-merc-btn" style="margin-top: 15px;">Hire Operative (1500 Credits)</button>
+                </div>
+                <div class="filter-buttons" id="merc-filter-buttons"><button class="active" data-filter="all">All</button><button data-filter="available">Available</button><button data-filter="mission">On Mission</button></div>
+                <div class="table-container" id="merc-list-table"></div>
+            </section>
             <section id="inventory-section" class="game-section"><div class="page-header"><h1>Inventory</h1><p>All fabricated equipment and consumables are stored here.</p></div><div id="inventory-container" class="inventory-grid"></div></section>
             <section id="map-section" class="game-section"><div class="page-header"><h1>Starmap</h1><p>Chart the void. Click a sector to view details and deploy a team.</p></div><div id="map-grid"></div></section>
             <section id="crafting-section" class="game-section"><div class="page-header"><h1>Fabricator</h1><p>Use materials to fabricate equipment and research new technologies.</p></div><div id="crafting-recipes-container"></div></section>
@@ -319,13 +337,14 @@
         }
 
         const gameState = {
-            resources: { food: 500, fuel: 250, materials: 1000, credits: 2500, energy: 300, scoutDrones: 1 },
+            resources: { food: 300, fuel: 150, materials: 600, credits: 1500, energy: 180, scoutDrones: 1 },
             inventory: [
                 { id: 1, name: 'Med-Syringe', type: 'utility', power: 5, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Med-Syringe' },
                 { id: 2, name: 'Pulse Rifle', type: 'weapon', power: 30, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Pulse+Rifle' }
             ],
             commander: { id: 0, name: 'Commander', class: 'Strategist', level: 1, isCommander: true, equipment: { weapon: null, armor: null, utility: null } },
             mercenaries: [],
+            maxMercs: 1,
             missions: { active: [] },
             crafting: {
                 queue: [],
@@ -335,8 +354,9 @@
                     { id: 'armor1', name: 'Exo-Armor Plating', cost: { materials: 150 }, time: 60, category: 'Armor', type: 'armor', power: 20, isUnlocked: true, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Exo-Armor' },
                     { id: 'rifle1', name: 'Pulse Rifle', cost: { materials: 200, energy: 25 }, time: 90, category: 'Weapons', type: 'weapon', power: 30, isUnlocked: true, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Pulse+Rifle' },
                     { id: 'scout_drone', name: 'Scout Drone', cost: { materials: 300, energy: 100 }, time: 30, category: 'Tools', type: 'drone', isUnlocked: true, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Scout+Drone' },
-                    { id: 'research_armor2', name: 'Advanced Plating R&D', cost: { materials: 500, credits: 1000 }, time: 300, category: 'R&D', type: 'research', unlocks: 'armor2', isUnlocked: true, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=R&D:+Armor' },
-                    { id: 'armor2', name: 'Aegis Armor', cost: { materials: 400, energy: 50 }, time: 180, category: 'Armor', type: 'armor', power: 50, isUnlocked: false, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Aegis+Armor' },
+                    { id: 'roster_upgrade_1', name: 'Expand Bunks (Tier 1)', cost: { materials: 500, credits: 2000 }, time: 180, category: 'Base Upgrades', type: 'research', unlocks: 'roster_upgrade_2', effect: () => { gameState.maxMercs = 2; }, isUnlocked: true, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Bunks+1' },
+                    { id: 'roster_upgrade_2', name: 'Expand Bunks (Tier 2)', cost: { materials: 1000, credits: 5000 }, time: 300, category: 'Base Upgrades', type: 'research', unlocks: 'roster_upgrade_3', effect: () => { gameState.maxMercs = 3; }, isUnlocked: false, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Bunks+2' },
+                    { id: 'roster_upgrade_3', name: 'Expand Bunks (Tier 3)', cost: { materials: 2500, credits: 10000 }, time: 600, category: 'Base Upgrades', type: 'research', unlocks: null, effect: () => { gameState.maxMercs = 5; }, isUnlocked: false, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Bunks+3' },
                 ]
             },
             map: { 
@@ -364,6 +384,8 @@
             commanderSection: document.getElementById('commander-section'),
             mercFilterButtons: document.getElementById('merc-filter-buttons'),
             mercListTable: document.getElementById('merc-list-table'),
+            operativeRosterTitle: document.getElementById('operative-roster-title'),
+            recruitMercBtn: document.getElementById('recruit-merc-btn'),
             inventoryContainer: document.getElementById('inventory-container'),
             craftingRecipesContainer: document.getElementById('crafting-recipes-container'),
             mapGrid: document.getElementById('map-grid'),
@@ -380,6 +402,9 @@
             preMinigameObjective: document.getElementById('pre-minigame-objective'),
             preMinigameParams: document.getElementById('pre-minigame-params'),
             startMinigameBtn: document.getElementById('start-minigame-btn'),
+            missionSuccessOverlay: document.getElementById('mission-success-overlay'),
+            missionSuccessTitle: document.getElementById('mission-success-title'),
+            missionSuccessRewards: document.getElementById('mission-success-rewards'),
             minigameOverlay: document.getElementById('minigame-overlay'),
             minigameCanvas: document.getElementById('minigame-canvas'),
             shooterOverlay: document.getElementById('shooter-overlay'),
@@ -478,6 +503,9 @@
             renderEquipment(commander, document.getElementById('commander-equipment'));
         }
         function renderMercs(filter = 'all') {
+            elements.operativeRosterTitle.innerHTML = `Operative Roster (${gameState.mercenaries.length}/${gameState.maxMercs})`;
+            elements.recruitMercBtn.disabled = gameState.mercenaries.length >= gameState.maxMercs;
+
             const filtered = gameState.mercenaries.filter(merc => {
                 const isOnMission = gameState.missions.active.some(m => m.mercId === merc.id);
                 if (filter === 'available') return !isOnMission; if (filter === 'mission') return isOnMission; return true;
@@ -618,7 +646,7 @@
             }
         }
         function scoutSector(coord, element) { if (spendResources({ fuel: 10 }, element)) { gameState.resources.scoutDrones--; gameState.missions.active.push({ id: 'scout_mission', name: `Scouting ${coord}`, type: 'scout', timeLeft: 30, duration: 30, coord, mercId: null }); closeModal(); renderAll(); } }
-        function recruitMerc(element) { if (spendResources({ credits: 1500 }, element)) { gameState.mercenaries.push({ id: gameState.nextMercId++, name: gameState.mercNames[Math.floor(Math.random() * gameState.mercNames.length)], class: gameState.mercClasses[Math.floor(Math.random() * gameState.mercClasses.length)], level: 1, equipment: { weapon: null, armor: null, utility: null } }); renderAll(); } }
+        function recruitMerc(element) { if (gameState.mercenaries.length < gameState.maxMercs && spendResources({ credits: 1500 }, element)) { gameState.mercenaries.push({ id: gameState.nextMercId++, name: gameState.mercNames[Math.floor(Math.random() * gameState.mercNames.length)], class: gameState.mercClasses[Math.floor(Math.random() * gameState.mercClasses.length)], level: 1, equipment: { weapon: null, armor: null, utility: null } }); renderAll(); } }
         function craftItem(recipeId, element) {
             const recipe = gameState.crafting.recipes.find(r => r.id === recipeId);
             if (recipe && !gameState.crafting.queue.some(item => item.id === recipeId) && spendResources(recipe.cost, element)) {
@@ -682,6 +710,16 @@
             elements.preMinigameParams.textContent = params;
         }
 
+        function showMissionSuccessModal(mission, minigameType) {
+            elements.missionSuccessOverlay.style.display = 'flex';
+            let title = 'MISSION SUCCESSFUL';
+            if(minigameType === 'mining') title = 'MINING SUCCESSFUL';
+            if(minigameType === 'combat') title = 'COMBAT SUCCESSFUL';
+            if(minigameType === 'hacking') title = 'HACKING SUCCESSFUL';
+            elements.missionSuccessTitle.textContent = title;
+            elements.missionSuccessRewards.innerHTML = Object.entries(mission.rewards).map(([res, val]) => `<p>${val} ${res}</p>`).join('');
+        }
+
         function handleCommanderFailure() {
             elements.gameOverOverlay.style.display = 'flex';
             elements.gameOverTitle.textContent = "CONNECTION UNSTABLE";
@@ -740,6 +778,7 @@
                 if (locationKey) {
                     gameState.map.locations[locationKey].mission = createNewMission('mining');
                 }
+                showMissionSuccessModal(breakoutState.mission, 'mining');
                 renderAll();
             } else {
                 handleCommanderFailure();
@@ -887,6 +926,7 @@
                 if (locationKey) {
                     gameState.map.locations[locationKey].mission = createNewMission('combat');
                 }
+                showMissionSuccessModal(shooterState.mission, 'combat');
                 renderAll();
             } else {
                 handleCommanderFailure();
@@ -1147,6 +1187,7 @@
                 if (locationKey) {
                     gameState.map.locations[locationKey].mission = createNewMission('hacking');
                 }
+                showMissionSuccessModal(sudokuState.mission, 'hacking');
                 renderAll();
             } else {
                 handleCommanderFailure();
@@ -1194,7 +1235,11 @@
             const finishedJobs = gameState.crafting.queue.filter(item => item.timeLeft <= 0);
             if (finishedJobs.length > 0) {
                 finishedJobs.forEach(job => {
-                    if (job.type === 'research') { const recipeToUnlock = gameState.crafting.recipes.find(r => r.id === job.unlocks); if(recipeToUnlock) recipeToUnlock.isUnlocked = true; }
+                    if (job.type === 'research') { 
+                        const recipeToUnlock = gameState.crafting.recipes.find(r => r.id === job.unlocks); 
+                        if(recipeToUnlock) recipeToUnlock.isUnlocked = true;
+                        if(job.effect) job.effect();
+                    }
                     else if (job.type === 'fuel') { gameState.resources.fuel += 50; }
                     else if (job.type === 'drone') { gameState.resources.scoutDrones++; }
                     else { gameState.inventory.push({ ...job, id: gameState.nextItemId++ }); }
@@ -1279,6 +1324,8 @@
                             elements.sudokuLives.textContent = `Incorrect. Attempts Remaining: ${sudokuState.lives}`;
                         }
                     }
+                } else if (target.matches('#mission-success-close-btn')) {
+                    elements.missionSuccessOverlay.style.display = 'none';
                 }
             });
 
