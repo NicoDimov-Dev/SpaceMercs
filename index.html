@@ -192,10 +192,11 @@
         #sudoku-grid > .sudoku-cell:nth-child(n+19):nth-child(-n+27),
         #sudoku-grid > .sudoku-cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 2px solid var(--text-primary); }
         .sudoku-cell.pre-filled { color: var(--text-secondary); cursor: default; }
-        .sudoku-cell.player-filled { color: var(--status-available); }
+        .sudoku-cell.player-filled { color: #fff; }
         .sudoku-cell.selected { background-color: var(--bg-tertiary); }
         #sudoku-controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         #sudoku-controls button { width: 50px; height: 50px; font-size: 24px; display: flex; justify-content: center; align-items: center; }
+        #sudoku-del-btn { grid-column: span 2; }
     </style>
 </head>
 <body class="crt-glow">
@@ -245,6 +246,11 @@
                 <div id="sudoku-controls"></div>
             </div>
              <p id="sudoku-lives" style="margin-top: 10px;"></p>
+             <div id="sudoku-retreat-confirm" style="display: none; margin-top: 10px;">
+                <p id="sudoku-retreat-text"></p>
+                <button id="confirm-retreat-btn" style="border-color: var(--danger-color); color: var(--danger-color);">Confirm</button>
+                <button id="cancel-retreat-btn">Cancel</button>
+             </div>
             <button id="sudoku-check-btn" style="margin-top: 10px;" disabled>Check Solution</button>
         </div>
     </div>
@@ -415,6 +421,8 @@
             sudokuControls: document.getElementById('sudoku-controls'),
             sudokuLives: document.getElementById('sudoku-lives'),
             sudokuCheckBtn: document.getElementById('sudoku-check-btn'),
+            sudokuRetreatConfirm: document.getElementById('sudoku-retreat-confirm'),
+            sudokuRetreatText: document.getElementById('sudoku-retreat-text'),
         };
 
         // --- Minigame States & Logic ---
@@ -1119,7 +1127,7 @@
             sudokuState.board = puzzle.solution.map(row => row.map(cell => 0));
             sudokuState.solution = puzzle.solution;
 
-            let clues = 40 - Math.floor(mission.difficulty * 0.5);
+            let clues = 52 - Math.floor(mission.difficulty * 0.5);
             let cells = [];
             for(let r=0; r<9; r++) for(let c=0; c<9; c++) cells.push({r,c});
             
@@ -1334,12 +1342,24 @@
                         }
                     }
                 } else if (target.matches('#sudoku-retreat-btn')) {
-                    if (spendResources({ fuel: sudokuState.mission.cost.fuel * 2 }, target)) {
-                        sudokuState.active = false;
-                        elements.sudokuOverlay.style.display = 'none';
-                        renderAll();
+                    const retreatCost = { fuel: sudokuState.mission.cost.fuel * 2 };
+                    if (hasEnoughResources(retreatCost)) {
+                        elements.sudokuRetreatText.textContent = `Retreat for ${retreatCost.fuel} fuel?`;
+                        elements.sudokuRetreatConfirm.style.display = 'block';
+                    } else {
+                        handleResourceShortage(retreatCost, target);
                     }
-                } else if (target.matches('#mission-success-close-btn')) {
+                } else if (target.matches('#confirm-retreat-btn')) {
+                    const retreatCost = { fuel: sudokuState.mission.cost.fuel * 2 };
+                    spendResources(retreatCost, target);
+                    sudokuState.active = false;
+                    elements.sudokuOverlay.style.display = 'none';
+                    elements.sudokuRetreatConfirm.style.display = 'none';
+                    renderAll();
+                } else if (target.matches('#cancel-retreat-btn')) {
+                    elements.sudokuRetreatConfirm.style.display = 'none';
+                }
+                else if (target.matches('#mission-success-close-btn')) {
                     elements.missionSuccessOverlay.style.display = 'none';
                 }
             });
