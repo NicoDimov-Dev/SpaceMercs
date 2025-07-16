@@ -192,10 +192,10 @@
         #sudoku-grid > .sudoku-cell:nth-child(n+19):nth-child(-n+27),
         #sudoku-grid > .sudoku-cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 2px solid var(--text-primary); }
         .sudoku-cell.pre-filled { color: var(--text-secondary); cursor: default; }
-        .sudoku-cell.player-filled { color: var(--accent-primary); }
+        .sudoku-cell.player-filled { color: var(--status-available); }
         .sudoku-cell.selected { background-color: var(--bg-tertiary); }
         #sudoku-controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        #sudoku-controls button { width: 50px; height: 50px; font-size: 24px; }
+        #sudoku-controls button { width: 50px; height: 50px; font-size: 24px; display: flex; justify-content: center; align-items: center; }
     </style>
 </head>
 <body class="crt-glow">
@@ -1167,9 +1167,18 @@
             }
             const delBtn = document.createElement('button');
             delBtn.textContent = 'DEL';
+            delBtn.id = 'sudoku-del-btn';
             delBtn.className = 'sudoku-control-btn';
             delBtn.dataset.num = 0;
             elements.sudokuControls.appendChild(delBtn);
+
+            const retreatBtn = document.createElement('button');
+            retreatBtn.textContent = 'X';
+            retreatBtn.id = 'sudoku-retreat-btn';
+            retreatBtn.style.borderColor = 'var(--danger-color)';
+            retreatBtn.style.color = 'var(--danger-color)';
+            elements.sudokuControls.appendChild(retreatBtn);
+
 
             elements.sudokuLives.textContent = `Attempts Remaining: ${sudokuState.lives}`;
             const isFull = sudokuState.board.every(row => row.every(cell => cell !== 0));
@@ -1323,6 +1332,12 @@
                         } else {
                             elements.sudokuLives.textContent = `Incorrect. Attempts Remaining: ${sudokuState.lives}`;
                         }
+                    }
+                } else if (target.matches('#sudoku-retreat-btn')) {
+                    if (spendResources({ fuel: sudokuState.mission.cost.fuel * 2 }, target)) {
+                        sudokuState.active = false;
+                        elements.sudokuOverlay.style.display = 'none';
+                        renderAll();
                     }
                 } else if (target.matches('#mission-success-close-btn')) {
                     elements.missionSuccessOverlay.style.display = 'none';
