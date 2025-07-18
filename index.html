@@ -353,22 +353,44 @@
             }
             const type = types[Math.floor(Math.random() * types.length)];
             const difficulty = 10 + Math.floor(Math.random() * 40);
+            
+            let missionRewards = {};
+            if (Math.random() < 0.20) {
+                // 20% chance for an energy-only mission
+                missionRewards = { energy: (50 + Math.floor(Math.random() * 100)) * 7 };
+            } else {
+                // 80% chance for a standard mission with 2 random rewards
+                const rewardPool = ['materials', 'credits', 'fuel', 'supplies'];
+                // Shuffle pool
+                for (let i = rewardPool.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [rewardPool[i], rewardPool[j]] = [rewardPool[j], rewardPool[i]];
+                }
+                const reward1_type = rewardPool[0];
+                const reward2_type = rewardPool[1];
+
+                missionRewards[reward1_type] = (50 + Math.floor(Math.random() * 200)) * 7;
+                missionRewards[reward2_type] = (50 + Math.floor(Math.random() * 200)) * 7;
+            }
+
             return {
                 id: `mission_${Date.now()}_${Math.random()}`,
                 name: getRandomMission(type),
                 type: type,
                 difficulty: difficulty,
-                cost: { fuel: 10 + Math.floor(difficulty / 2) },
+                cost: { 
+                    fuel: 10 + Math.floor(difficulty / 5),
+                    supplies: 15 + Math.floor(difficulty / 5) 
+                },
                 duration: 60 + difficulty,
-                rewards: { 
-                    materials: 100 + Math.floor(Math.random() * 200), 
-                    credits: 500 + Math.floor(Math.random() * 1000) 
-                }
+                rewards: missionRewards
             };
         }
 
         const gameState = {
-            resources: { food: 300, fuel: 150, materials: 600, credits: 1500, energy: 180, scoutDrones: 1 },
+            resources: { supplies: 300, fuel: 150, materials: 600, credits: 1500, energy: 180, scoutDrones: 1 },
+            maxEnergy: 300,
+            maxScoutDrones: 2,
             inventory: [
                 { id: 1, name: 'Med-Syringe', type: 'utility', power: 5, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Med-Syringe' },
                 { id: 2, name: 'Pulse Rifle', type: 'weapon', power: 30, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Pulse+Rifle' }
@@ -380,14 +402,15 @@
             crafting: {
                 queue: [],
                 recipes: [
+                    { id: 'supply_pack', name: 'Supply Pack', cost: { materials: 40 }, time: 15, category: 'Consumables', type: 'supplies', isUnlocked: true, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Supply+Pack' },
                     { id: 'fuel_cell', name: 'Stabilized Fuel Cell', cost: { materials: 50, energy: 25 }, time: 20, category: 'Consumables', type: 'fuel', isUnlocked: true, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Fuel+Cell' },
                     { id: 'medkit', name: 'Med-Syringe', cost: { materials: 25 }, time: 10, category: 'Consumables', type: 'utility', power: 5, isUnlocked: true, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Med-Syringe' },
                     { id: 'armor1', name: 'Exo-Armor Plating', cost: { materials: 150 }, time: 60, category: 'Armor', type: 'armor', power: 20, isUnlocked: true, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Exo-Armor' },
                     { id: 'rifle1', name: 'Pulse Rifle', cost: { materials: 200, energy: 25 }, time: 90, category: 'Weapons', type: 'weapon', power: 30, isUnlocked: true, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Pulse+Rifle' },
-                    { id: 'scout_drone', name: 'Scout Drone', cost: { materials: 300, energy: 100 }, time: 30, category: 'Tools', type: 'drone', isUnlocked: true, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Scout+Drone' },
-                    { id: 'roster_upgrade_1', name: 'Expand Bunks (Tier 1)', cost: { materials: 500, credits: 2000 }, time: 180, category: 'Base Upgrades', type: 'research', unlocks: 'roster_upgrade_2', effect: () => { gameState.maxMercs = 2; }, isUnlocked: true, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Bunks+1' },
-                    { id: 'roster_upgrade_2', name: 'Expand Bunks (Tier 2)', cost: { materials: 1000, credits: 5000 }, time: 300, category: 'Base Upgrades', type: 'research', unlocks: 'roster_upgrade_3', effect: () => { gameState.maxMercs = 3; }, isUnlocked: false, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Bunks+2' },
-                    { id: 'roster_upgrade_3', name: 'Expand Bunks (Tier 3)', cost: { materials: 2500, credits: 10000 }, time: 600, category: 'Base Upgrades', type: 'research', unlocks: null, effect: () => { gameState.maxMercs = 5; }, isUnlocked: false, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Bunks+3' },
+                    { id: 'scout_drone', name: 'Scout Drone', cost: { materials: 20, energy: 100 }, time: 30, category: 'Tools', type: 'drone', isUnlocked: true, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Scout+Drone' },
+                    { id: 'roster_upgrade_1', name: 'Expand Bunks (Tier 1)', cost: { materials: 500, credits: 2000 }, time: 180, category: 'Base Upgrades', type: 'research', unlocks: 'roster_upgrade_2', effect: () => { gameState.maxMercs = 2; gameState.maxEnergy += 200; gameState.maxScoutDrones += 1; }, isUnlocked: true, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Bunks+1' },
+                    { id: 'roster_upgrade_2', name: 'Expand Bunks (Tier 2)', cost: { materials: 1000, credits: 5000 }, time: 300, category: 'Base Upgrades', type: 'research', unlocks: 'roster_upgrade_3', effect: () => { gameState.maxMercs = 3; gameState.maxEnergy += 200; gameState.maxScoutDrones += 1; }, isUnlocked: false, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Bunks+2' },
+                    { id: 'roster_upgrade_3', name: 'Expand Bunks (Tier 3)', cost: { materials: 2500, credits: 10000 }, time: 600, category: 'Base Upgrades', type: 'research', unlocks: null, effect: () => { gameState.maxMercs = 5; gameState.maxEnergy += 200; gameState.maxScoutDrones += 1; }, isUnlocked: false, img: 'https://placehold.co/400x240/1e1e1e/e0e0e0?text=Bunks+3' },
                 ]
             },
             map: { 
@@ -494,7 +517,18 @@
         const getMercPower = (merc) => { let power = merc.level * 10; for (const slot in merc.equipment) { if (merc.equipment[slot]) { power += merc.equipment[slot].power; } } return power; };
         const getSuccessChance = (power, difficulty) => Math.round(Math.min(95, 50 + (power - difficulty) * 1.5));
         const hasEnoughResources = (cost) => Object.entries(cost).every(([r, a]) => gameState.resources[r] >= a);
-        const addResources = (rewards) => { Object.entries(rewards).forEach(([r, a]) => { if(gameState.resources[r] !== undefined) gameState.resources[r] += a; }); };
+        
+        const addResources = (rewards) => { 
+            Object.entries(rewards).forEach(([r, a]) => { 
+                if(gameState.resources[r] !== undefined) {
+                    if (r === 'energy') {
+                        gameState.resources.energy = Math.min(gameState.maxEnergy, gameState.resources.energy + a);
+                    } else {
+                        gameState.resources[r] += a;
+                    }
+                } 
+            }); 
+        };
         
         function handleResourceShortage(cost, element) {
             const missing = Object.entries(cost).filter(([res, amount]) => gameState.resources[res] < amount);
@@ -525,7 +559,22 @@
         };
 
         function renderAll() { renderResources(); renderProductionQueue(); renderCommander(); renderMercs(); renderCrafting(); renderActiveMissions(); renderMap(); renderInventory(); }
-        function renderResources() { elements.resourceBar.innerHTML = Object.entries(gameState.resources).map(([name, value]) => `<div class="resource-item" id="resource-${name}">${name.replace(/([A-Z])/g, ' $1')}: <span>${value.toLocaleString()}</span></div>`).join(''); }
+        
+        function renderResources() { 
+            elements.resourceBar.innerHTML = Object.entries(gameState.resources).map(([name, value]) => {
+                let displayValue = value.toLocaleString();
+                let displayName = name.replace(/([A-Z])/g, ' $1');
+
+                if (name === 'energy') {
+                    displayValue = `${value.toLocaleString()}/${gameState.maxEnergy.toLocaleString()}`;
+                } else if (name === 'scoutDrones') {
+                    displayValue = `${value.toLocaleString()}/${gameState.maxScoutDrones.toLocaleString()}`;
+                }
+
+                return `<div class="resource-item" id="resource-${name}">${displayName}: <span>${displayValue}</span></div>`;
+            }).join(''); 
+        }
+
         function renderProductionQueue() {
             let content = '<table><tbody><tr><td style="text-align: center; color: var(--text-secondary);">No active fabrication jobs.</td></tr></tbody></table>';
             if (gameState.crafting.queue.length > 0) { content = `<table><thead><tr><th>Item</th><th>Time Left</th><th>Progress</th></tr></thead><tbody>${gameState.crafting.queue.map(item => `<tr><td>${item.name}</td><td>${item.timeLeft}s</td><td><div class="progress-bar"><div class="progress-bar-fill" style="width: ${((item.time - item.timeLeft) / item.time) * 100}%"></div></div></td></tr>`).join('')}</tbody></table>`; }
@@ -621,7 +670,7 @@
                 body = `<p>SECTOR SCANNED. NOTHING OF INTEREST FOUND.</p>`;
             } else {
                 body = `<p>This sector is a mystery.</p>`;
-                if (gameState.resources.scoutDrones > 0) { body += `<p>You have ${gameState.resources.scoutDrones} Scout Drone(s) available.</p><button id="scout-btn" data-coord="${coord}">Deploy Scout Drone // 10 Fuel, 30s</button>`; }
+                if (gameState.resources.scoutDrones > 0) { body += `<p>You have ${gameState.resources.scoutDrones} Scout Drone(s) available.</p><button id="scout-btn" data-coord="${coord}">Deploy Scout Drone // 10 Fuel, 10 Supplies, 30s</button>`; }
                 else { body += `<p>Fabricate more Scout Drones to explore uncharted space.</p>`; }
             }
             elements.modalBody.innerHTML = body;
@@ -679,7 +728,7 @@
                 }
             }
         }
-        function scoutSector(coord, element) { if (spendResources({ fuel: 10 }, element)) { gameState.resources.scoutDrones--; gameState.missions.active.push({ id: 'scout_mission', name: `Scouting ${coord}`, type: 'scout', timeLeft: 30, duration: 30, coord, mercId: null }); closeModal(); renderAll(); } }
+        function scoutSector(coord, element) { if (spendResources({ fuel: 10, supplies: 10 }, element)) { gameState.resources.scoutDrones--; gameState.missions.active.push({ id: 'scout_mission', name: `Scouting ${coord}`, type: 'scout', timeLeft: 30, duration: 30, coord, mercId: null }); closeModal(); renderAll(); } }
         function recruitMerc(element) { if (gameState.mercenaries.length < gameState.maxMercs && spendResources({ credits: 1500 }, element)) { gameState.mercenaries.push({ id: gameState.nextMercId++, name: gameState.mercNames[Math.floor(Math.random() * gameState.mercNames.length)], class: gameState.mercClasses[Math.floor(Math.random() * gameState.mercClasses.length)], level: 1, equipment: { weapon: null, armor: null, utility: null } }); renderAll(); } }
         function craftItem(recipeId, element) {
             const recipe = gameState.crafting.recipes.find(r => r.id === recipeId);
@@ -1179,7 +1228,7 @@
             sudokuState.board = puzzle.solution.map(row => row.map(cell => 0));
             sudokuState.solution = puzzle.solution;
 
-            let clues = 52 - Math.floor(mission.difficulty * 0.5);
+            let clues = 62 - Math.floor(mission.difficulty * 0.5);
             let cells = [];
             for(let r=0; r<9; r++) for(let c=0; c<9; c++) cells.push({r,c});
             
@@ -1310,7 +1359,8 @@
                         if(job.effect) job.effect();
                     }
                     else if (job.type === 'fuel') { gameState.resources.fuel += 50; }
-                    else if (job.type === 'drone') { gameState.resources.scoutDrones++; }
+                    else if (job.type === 'supplies') { gameState.resources.supplies += 40; }
+                    else if (job.type === 'drone') { gameState.resources.scoutDrones = Math.min(gameState.maxScoutDrones, gameState.resources.scoutDrones + 1); }
                     else { gameState.inventory.push({ ...job, id: gameState.nextItemId++ }); }
                 });
                 gameState.crafting.queue = gameState.crafting.queue.filter(item => item.timeLeft > 0);
@@ -1336,7 +1386,7 @@
                 gameState.missions.active = gameState.missions.active.filter(m => m.timeLeft > 0);
                 needsRender = true;
             }
-            if (needsRender) { renderAll(); } else { renderProductionQueue(); renderActiveMissions(); renderMap(); renderCrafting(); }
+            if (needsRender) { renderAll(); } else { renderProductionQueue(); renderActiveMissions(); renderMap(); renderCrafting(); renderResources(); }
         }
 
         function init() {
