@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Space Mercs INC</title>
+    <title>Space Mercs Inc</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -301,7 +301,7 @@
                 <div class="page-header"><h1>How To Play</h1><p>A guide to surviving in the void.</p></div>
                 <div class="card">
                     <h2>General Concept</h2>
-                    <p>You are the Commander of Space Mercs Inc. A private military company operating on the fringes of the galaxy. Your goal is to expand your operation by recruiting operatives, fabricating advanced gear, and completing lucrative contracts found on the Starmap.</p>
+                    <p>You are the Commander of Space Mercs Inc, a private military company operating on the fringes of the galaxy. Your goal is to expand your operation by recruiting operatives, fabricating advanced gear, and completing lucrative contracts found on the Starmap.</p>
                 </div>
                 <div class="card">
                     <h2>Sections</h2>
@@ -458,6 +458,7 @@
             ball: { x: 0, y: 0, dx: 2, dy: -2, radius: 7 },
             paddle: { height: 10, width: 75, x: 0 },
             bricks: [],
+            stars: [],
             score: 0,
             lives: 3,
             keys: { right: false, left: false }
@@ -785,6 +786,16 @@
             breakoutState.lives = 3;
             breakoutState.score = 0;
 
+            breakoutState.stars = [];
+            for (let i = 0; i < 50; i++) {
+                breakoutState.stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 1,
+                    speed: Math.random() * 0.5 + 0.1
+                });
+            }
+
             const brickRowCount = 3 + Math.floor(mission.difficulty / 20);
             const brickColumnCount = 5;
             breakoutState.bricks = [];
@@ -823,7 +834,7 @@
             if (!breakoutState.active) return;
             const canvas = elements.minigameCanvas;
             const ctx = canvas.getContext('2d');
-            const { ball, paddle, bricks, keys } = breakoutState;
+            const { ball, paddle, bricks, keys, stars } = breakoutState;
 
             if (keys.right) paddle.x += 7;
             if (keys.left) paddle.x -= 7;
@@ -831,6 +842,22 @@
             if (paddle.x + paddle.width > canvas.width) paddle.x = canvas.width - paddle.width;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw & Update Stars
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary');
+            for (const star of stars) {
+                star.y += star.speed;
+                if (star.y > canvas.height) {
+                    star.y = 0;
+                    star.x = Math.random() * canvas.width;
+                }
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
 
             let bricksLeft = 0;
             for (let c = 0; c < bricks.length; c++) {
