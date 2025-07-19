@@ -360,7 +360,7 @@
                 missionRewards = { energy: (50 + Math.floor(Math.random() * 100)) * 7 };
             } else {
                 // 80% chance for a standard mission with 2 random rewards
-                const rewardPool = ['materials', 'credits', 'fuel', 'supplies'];
+                const rewardPool = ['materials', 'credits', 'fuel', 'supplies', 'energy',];
                 // Shuffle pool
                 for (let i = rewardPool.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
